@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -12,16 +11,16 @@ class BottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      selectedItemColor: Colors.black, // Color del icono seleccionado
-      unselectedItemColor: Colors.grey, // Color de los no seleccionados
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
       showSelectedLabels: true,
       showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed, // Evita que los iconos cambien de tamaño
+      type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined),
           activeIcon: Icon(Icons.home),
-          label: 'Home',
+          label: 'Stores',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.search_outlined),
