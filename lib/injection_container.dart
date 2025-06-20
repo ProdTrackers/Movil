@@ -28,12 +28,18 @@ import 'package:lockitem_movil/data/datasources/remote/store_remote_data_source.
 import 'package:lockitem_movil/data/repositories/store_repository_impl.dart';
 import 'package:lockitem_movil/domain/repositories/store_repository.dart';
 import 'package:lockitem_movil/domain/usecases/get_all_stores.dart';
+import 'package:lockitem_movil/presentation/bloc/locate_product_bloc.dart';
 import 'package:lockitem_movil/presentation/bloc/store_bloc.dart';
 import 'package:lockitem_movil/data/datasources/remote/inventory_remote_data_source.dart';
 import 'package:lockitem_movil/data/repositories/inventory_repository_impl.dart';
 import 'package:lockitem_movil/domain/repositories/inventory_repository.dart';
 import 'package:lockitem_movil/domain/usecases/get_items_by_store.dart';
 import 'package:lockitem_movil/presentation/bloc/inventory_bloc.dart';
+
+import 'data/datasources/remote/iot_device_remote_data_source.dart';
+import 'data/repositories/iot_device_repository_impl.dart';
+import 'domain/repositories/iot_device_repository.dart';
+import 'domain/usecases/get_iot_device_for_item.dart';
 
 
 final sl = GetIt.instance;
@@ -49,8 +55,11 @@ Future<void> init() async {
   sl.registerFactory(
         () => StoreBloc(getAllStores: sl()),
   );
-  sl.registerFactory( // Nuevo BLoC para Inventory
+  sl.registerFactory(
         () => InventoryBloc(getItemsByStore: sl()),
+  );
+  sl.registerFactory(
+        () => LocateProductBloc(getIotDeviceForItem: sl()),
   );
 
   // Use cases
@@ -58,6 +67,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SignupUser(sl()));
   sl.registerLazySingleton(() => GetAllStores(sl()));
   sl.registerLazySingleton(() => GetItemsByStore(sl()));
+  sl.registerLazySingleton(() => GetIotDeviceForItem(sl()));
+
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
@@ -78,6 +89,12 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
+  sl.registerLazySingleton<IotDeviceRepository>(
+        () => IotDeviceRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -89,11 +106,19 @@ Future<void> init() async {
   sl.registerLazySingleton<InventoryRemoteDataSource>(
         () => InventoryRemoteDataSourceImpl(client: sl()),
   );
+  sl.registerLazySingleton<IotDeviceRemoteDataSource>(
+        () => IotDeviceRemoteDataSourceImpl(client: sl()),
+  );
+
 
   // Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   // External
-  sl.registerLazySingleton(() => http.Client());
-  sl.registerLazySingleton(() => Connectivity());
+  if (!sl.isRegistered<http.Client>()) {
+    sl.registerLazySingleton(() => http.Client());
+  }
+  if (!sl.isRegistered<Connectivity>()) {
+    sl.registerLazySingleton(() => Connectivity());
+  }
 }
