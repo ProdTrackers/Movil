@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:lockitem_movil/domain/entities/item_entity.dart';
-import 'package:lockitem_movil/presentation/screens/home/locate_product_screen.dart'; // Asegúrate que esta ruta es correcta
+import 'package:lockitem_movil/presentation/screens/home/locate_product_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final ItemEntity item;
@@ -42,7 +42,7 @@ class ProductDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(item.name),
-        backgroundColor: colorScheme.primary,
+        backgroundColor: colorScheme.shadow,
         foregroundColor: colorScheme.onPrimary,
       ),
       body: SingleChildScrollView(
@@ -114,19 +114,19 @@ class ProductDetailsScreen extends StatelessWidget {
               children: [
                 if (item.color != null && item.color!.isNotEmpty) ...[
                   Chip(
-                    avatar: Icon(Icons.color_lens_outlined, size: 18, color: colorScheme.onSecondaryContainer),
+                    avatar: Icon(Icons.color_lens_outlined, size: 18, color: colorScheme.onPrimary),
                     label: Text(item.color!),
-                    backgroundColor: colorScheme.secondaryContainer,
-                    labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
+                    backgroundColor: colorScheme.shadow,
+                    labelStyle: TextStyle(color: colorScheme.onPrimary),
                   ),
                   const SizedBox(width: 8),
                 ],
                 if (item.size != null && item.size!.isNotEmpty)
                   Chip(
-                    avatar: Icon(Icons.straighten_outlined, size: 18, color: colorScheme.onSecondaryContainer),
+                    avatar: Icon(Icons.straighten_outlined, size: 18, color: colorScheme.onPrimary),
                     label: Text(item.size!),
-                    backgroundColor: colorScheme.secondaryContainer,
-                    labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
+                    backgroundColor: colorScheme.shadow,
+                    labelStyle: TextStyle(color: colorScheme.onPrimary),
                   ),
               ],
             ),
@@ -146,10 +146,10 @@ class ProductDetailsScreen extends StatelessWidget {
 
             Center(
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.location_on_outlined),
+                icon: const Icon(Icons.location_on_outlined, color: Colors.white),
                 label: const Text('Localizar'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
+                  backgroundColor: colorScheme.shadow,
                   foregroundColor: colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   textStyle: textTheme.titleMedium,
