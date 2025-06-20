@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockitem_movil/domain/entities/store_entity.dart';
 import 'package:lockitem_movil/presentation/bloc/inventory_bloc.dart';
+import 'package:lockitem_movil/presentation/screens/home/product_details_screen.dart';
 import 'package:lockitem_movil/presentation/widgets/catalog_item_card.dart';
 import 'package:lockitem_movil/injection_container.dart';
 
@@ -63,15 +64,26 @@ class CatalogScreen extends StatelessWidget {
                 child: GridView.builder(
                   padding: const EdgeInsets.all(12.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 2 columnas
+                    crossAxisCount: 2,
                     crossAxisSpacing: 12.0,
                     mainAxisSpacing: 12.0,
                     childAspectRatio: 0.75,
                   ),
                   itemCount: state.items.length,
                   itemBuilder: (context, index) {
-                    final item = state.items[index];
-                    return CatalogItemCard(item: item);
+                    final item = state.items[index]; // item es de tipo ItemEntity
+                    return GestureDetector( // O InkWell para efecto ripple
+                      onTap: () {
+                        // Navegar a ProductDetailsScreen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailsScreen(item: item),
+                          ),
+                        );
+                      },
+                      child: CatalogItemCard(item: item),
+                    );
                   },
                 ),
               );
