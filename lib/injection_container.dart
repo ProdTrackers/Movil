@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
-
 import 'package:lockitem_movil/core/platform/network_info.dart';
 import 'package:lockitem_movil/data/datasources/remote/auth_remote_data_source.dart';
 import 'package:lockitem_movil/data/repositories/auth_repository_impl.dart';
@@ -14,6 +13,11 @@ import 'package:lockitem_movil/data/repositories/store_repository_impl.dart';
 import 'package:lockitem_movil/domain/repositories/store_repository.dart';
 import 'package:lockitem_movil/domain/usecases/get_all_stores.dart';
 import 'package:lockitem_movil/presentation/bloc/store_bloc.dart';
+import 'package:lockitem_movil/data/datasources/remote/inventory_remote_data_source.dart';
+import 'package:lockitem_movil/data/repositories/inventory_repository_impl.dart';
+import 'package:lockitem_movil/domain/repositories/inventory_repository.dart';
+import 'package:lockitem_movil/domain/usecases/get_items_by_store.dart';
+import 'package:lockitem_movil/presentation/bloc/inventory_bloc.dart';
 
 
 final sl = GetIt.instance;
@@ -29,11 +33,15 @@ Future<void> init() async {
   sl.registerFactory(
         () => StoreBloc(getAllStores: sl()),
   );
+  sl.registerFactory( // Nuevo BLoC para Inventory
+        () => InventoryBloc(getItemsByStore: sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUser(sl()));
   sl.registerLazySingleton(() => SignupUser(sl()));
   sl.registerLazySingleton(() => GetAllStores(sl()));
+  sl.registerLazySingleton(() => GetItemsByStore(sl()));
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
@@ -48,6 +56,12 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
+  sl.registerLazySingleton<InventoryRepository>(
+        () => InventoryRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -55,6 +69,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<StoreRemoteDataSource>(
         () => StoreRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<InventoryRemoteDataSource>(
+        () => InventoryRemoteDataSourceImpl(client: sl()),
   );
 
   // Core

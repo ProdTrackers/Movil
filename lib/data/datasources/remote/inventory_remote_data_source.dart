@@ -1,23 +1,26 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:lockitem_movil/core/error/exceptions.dart';
-import 'package:lockitem_movil/data/models/store_model.dart';
+import 'package:lockitem_movil/data/models/item_model.dart';
 
 const String BASE_URL = 'https://backend-production-41be.up.railway.app/api/v1';
 
-abstract class StoreRemoteDataSource {
-  Future<List<StoreModel>> getAllStores();
+abstract class InventoryRemoteDataSource {
+  Future<List<ItemModel>> getAllInventoryItems();
 }
 
-class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
+class InventoryRemoteDataSourceImpl implements InventoryRemoteDataSource {
   final http.Client client;
 
-  StoreRemoteDataSourceImpl({required this.client});
+  InventoryRemoteDataSourceImpl({required this.client});
 
   @override
-  Future<List<StoreModel>> getAllStores() async {
+  Future<List<ItemModel>> getAllInventoryItems() async {
+    final uri = Uri.parse('$BASE_URL/inventory');
+    print('Fetching ALL items from: $uri');
+
     final response = await client.get(
-      Uri.parse('$BASE_URL/stores/all'),
+      uri,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -25,18 +28,14 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
-      return jsonData.map((storeJson) => StoreModel.fromJson(storeJson)).toList();
-    } else if (response.statusCode == 404) {
-      throw ServerException('Recurso no encontrado (404). Verifica la URL del endpoint.');
-    }
-    else {
-      // Intentar decodificar el cuerpo del error si es JSON
+      return jsonData.map((itemJson) => ItemModel.fromJson(itemJson)).toList();
+    } else {
       try {
         final errorBody = json.decode(response.body);
         final errorMessage = errorBody['message'] ?? 'Error desconocido del servidor';
         throw ServerException('Error del servidor: ${response.statusCode} - $errorMessage');
       } catch (e) {
-        throw ServerException('Error del servidor: ${response.statusCode}');
+        throw ServerException('Error del servidor al obtener el inventario: ${response.statusCode}');
       }
     }
   }

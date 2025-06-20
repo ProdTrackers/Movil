@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lockitem_movil/domain/entities/store_entity.dart';
+import '../screens/home/catalog_screen.dart';
 
 class StoreListItem extends StatelessWidget {
   final StoreEntity store;
@@ -23,8 +24,13 @@ class StoreListItem extends StatelessWidget {
         title: Text(store.name, style: const TextStyle(fontWeight: FontWeight.w500)),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
-          print('Tapped on store: ${store.name}');
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => CatalogScreen(store: store)));
+          print('Tapped on store: ${store.name}, ID: ${store.id}');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CatalogScreen(store: store),
+            ),
+          );
         },
       ),
     );
