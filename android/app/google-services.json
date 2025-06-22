@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "490901251332",
+    "project_id": "lockitem-appmovil",
+    "storage_bucket": "lockitem-appmovil.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490901251332:android:816b41de8a8e04d8145c51",
+        "android_client_info": {
+          "package_name": "com.prodtrackers.lockitem_movil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOIuGaci32sS4YNPvJ_VQ0n_Og1S3-KrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
