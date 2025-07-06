@@ -12,6 +12,7 @@ import 'package:lockitem_movil/data/datasources/remote/store_remote_data_source.
 import 'package:lockitem_movil/data/repositories/store_repository_impl.dart';
 import 'package:lockitem_movil/domain/repositories/store_repository.dart';
 import 'package:lockitem_movil/domain/usecases/get_all_stores.dart';
+import 'package:lockitem_movil/presentation/bloc/favorite_bloc.dart';
 import 'package:lockitem_movil/presentation/bloc/locate_product_bloc.dart';
 import 'package:lockitem_movil/presentation/bloc/search_bloc.dart';
 import 'package:lockitem_movil/presentation/bloc/store_bloc.dart';
@@ -20,12 +21,20 @@ import 'package:lockitem_movil/data/repositories/inventory_repository_impl.dart'
 import 'package:lockitem_movil/domain/repositories/inventory_repository.dart';
 import 'package:lockitem_movil/domain/usecases/get_items_by_store.dart';
 import 'package:lockitem_movil/presentation/bloc/inventory_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'data/datasources/local/favorite_local_data_source.dart';
 import 'data/datasources/remote/iot_device_remote_data_source.dart';
+import 'data/repositories/favorite_repository_impl.dart';
 import 'data/repositories/iot_device_repository_impl.dart';
+import 'domain/repositories/favorite_repository.dart';
 import 'domain/repositories/iot_device_repository.dart';
+import 'domain/usecases/add_favorite_item.dart';
 import 'domain/usecases/get_all_items.dart';
+import 'domain/usecases/get_favorite_items.dart';
 import 'domain/usecases/get_iot_device_for_item.dart';
+import 'domain/usecases/is_item_favorite.dart';
+import 'domain/usecases/remove_favorite_item.dart';
 
 
 final sl = GetIt.instance;
@@ -50,6 +59,14 @@ Future<void> init() async {
   sl.registerFactory(
         () => SearchBloc(getAllItemsUseCase: sl()),
   );
+  sl.registerFactory(
+        () => FavoriteBloc(
+      getFavoriteItems: sl(),
+      addFavoriteItem: sl(),
+      removeFavoriteItem: sl(),
+      isItemFavorite: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUser(sl()));
@@ -58,6 +75,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetItemsByStore(sl()));
   sl.registerLazySingleton(() => GetIotDeviceForItem(sl()));
   sl.registerLazySingleton(() => GetAllItems(sl()));
+  sl.registerLazySingleton(() => GetFavoriteItems(sl()));
+  sl.registerLazySingleton(() => AddFavoriteItem(sl()));
+  sl.registerLazySingleton(() => RemoveFavoriteItem(sl()));
+  sl.registerLazySingleton(() => IsItemFavorite(sl()));
 
 
   // Repositories
@@ -85,6 +106,12 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
+  sl.registerLazySingleton<FavoriteRepository>(
+        () => FavoriteRepositoryImpl(
+      localDataSource: sl(),
+      inventoryRepository: sl(),
+    ),
+  );
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -99,6 +126,9 @@ Future<void> init() async {
   sl.registerLazySingleton<IotDeviceRemoteDataSource>(
         () => IotDeviceRemoteDataSourceImpl(client: sl()),
   );
+  sl.registerLazySingleton<FavoriteLocalDataSource>(
+        () => FavoriteLocalDataSourceImpl(sharedPreferences: sl()),
+  );
 
 
   // Core
@@ -110,5 +140,9 @@ Future<void> init() async {
   }
   if (!sl.isRegistered<Connectivity>()) {
     sl.registerLazySingleton(() => Connectivity());
+  }
+  if (!sl.isRegistered<SharedPreferences>()) {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    sl.registerLazySingleton(() => sharedPreferences);
   }
 }
