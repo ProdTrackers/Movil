@@ -27,11 +27,11 @@ class BottomNavBar extends StatelessWidget {
           activeIcon: Icon(Icons.search),
           label: 'Search',
         ),
-        /*BottomNavigationBarItem(
+        BottomNavigationBarItem(
           icon: Icon(Icons.favorite_border),
           activeIcon: Icon(Icons.favorite),
           label: 'Saved',
-        ),*/
+        ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
           activeIcon: Icon(Icons.person),

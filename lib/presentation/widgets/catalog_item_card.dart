@@ -1,26 +1,25 @@
-// ⚠️ ATENCIÓN: NO TOCAR, FUNCIONA Y NO SÉ PORQUE ⚠️
-//
-// Este fragmento de código fue escrito entre la 1 y las 4 de la mañana,
-// bajo los efectos combinados de cafeína, desesperación y un bug que
-// solo se manifiesta cuando nadie lo estaba mirando.
-//
-// No funciona si lo entiendes.
-// No lo entiendes si funciona.
-//
-// Cualquier intento de refactorizar esto ha resultado en la invocación
-// de problemas dimensionales, loops infinitos y un extraño parpadeo en el
-// monitor que aún no puedo explicar.
-//
-// Si necesitas cambiar esto, primero reza, luego haz una copia de seguridad,
-// y por último... suerte.
+// presentation/widgets/catalog_item_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockitem_movil/domain/entities/item_entity.dart';
 
-class CatalogItemCard extends StatelessWidget {
-  final ItemEntity item;
+import '../bloc/favorite_bloc.dart';
 
+class CatalogItemCard extends StatefulWidget {
+  final ItemEntity item;
   const CatalogItemCard({super.key, required this.item});
+
+  @override
+  State<CatalogItemCard> createState() => _CatalogItemCardState();
+}
+
+class _CatalogItemCardState extends State<CatalogItemCard> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<FavoriteBloc>().add(CheckFavoriteStatus(widget.item.id));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,33 +31,73 @@ class CatalogItemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: item.imageUrl != null && item.imageUrl!.isNotEmpty
-                  ? Image.network(
-                item.imageUrl!,
-                fit: BoxFit.cover,
-                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                          : null,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                    child: widget.item.imageUrl != null && widget.item.imageUrl!.isNotEmpty
+                        ? Image.network(
+                      widget.item.imageUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                        return Container(
+                          color: Colors.grey[200],
+                          child: Icon(Icons.broken_image, color: Colors.grey[400], size: 40),
+                        );
+                      },
+                    )
+                        : Container(
+                      color: Colors.grey[200],
+                      child: Icon(Icons.image_not_supported, color: Colors.grey[400], size: 40),
                     ),
-                  );
-                },
-                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                  return Container(
-                    color: Colors.grey[200],
-                    child: Icon(Icons.broken_image, size: 40, color: Colors.grey[400]),
-                  );
-                },
-              )
-                  : Container(
-                color: Colors.grey[200],
-                child: Icon(Icons.image_not_supported_outlined, size: 40, color: Colors.grey[400]),
-              ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: BlocBuilder<FavoriteBloc, FavoriteState>(
+                    buildWhen: (previous, current) {
+                      if (current is FavoriteLoaded) {
+                        bool? previousStatus = (previous is FavoriteLoaded) ? previous.itemFavoriteStatus[widget.item.id] : null;
+                        return current.itemFavoriteStatus[widget.item.id] != previousStatus;
+                      }
+                      return current is FavoriteInitial && previous is! FavoriteLoaded;
+                    },
+                    builder: (context, state) {
+                      bool isFav = false;
+                      if (state is FavoriteLoaded) {
+                        isFav = state.itemFavoriteStatus[widget.item.id] ?? false;
+                      }
+
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<FavoriteBloc>().add(ToggleFavoriteStatus(widget.item));
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black.withOpacity(0.3),
+                          radius: 18,
+                          child: Icon(
+                            isFav ? Icons.favorite : Icons.favorite_border,
+                            color: isFav ? Colors.redAccent : Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -67,22 +106,22 @@ class CatalogItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  widget.item.name,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                if (item.size != null || item.color != null)
+                if (widget.item.size != null || widget.item.color != null)
                   Text(
-                    '${item.color ?? ''}${item.color != null && item.size != null ? ' - ' : ''}${item.size ?? ''}',
+                    '${widget.item.color ?? ''}${widget.item.color != null && widget.item.size != null ? ' - ' : ''}${widget.item.size ?? ''}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 6),
                 Text(
-                  item.price != null ? '\$${item.price!.toStringAsFixed(2)}' : 'Precio no disponible',
+                  widget.item.price != null ? '\$${widget.item.price!.toStringAsFixed(2)}' : 'Precio no disponible',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
