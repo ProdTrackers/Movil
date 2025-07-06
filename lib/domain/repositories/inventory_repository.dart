@@ -4,4 +4,5 @@ import 'package:lockitem_movil/domain/entities/item_entity.dart';
 
 abstract class InventoryRepository {
   Future<Either<Failure, List<ItemEntity>>> getItemsByStore(String storeId);
+  Future<Either<Failure, List<ItemEntity>>> getAllItems();
 }
