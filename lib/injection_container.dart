@@ -1,19 +1,3 @@
-// ⚠️ ATENCIÓN: NO TOCAR, FUNCIONA Y NO SÉ PORQUE ⚠️
-//
-// Este fragmento de código fue escrito entre la 1 y las 4 de la mañana,
-// bajo los efectos combinados de cafeína, desesperación y un bug que
-// solo se manifiesta cuando nadie lo estaba mirando.
-//
-// No funciona si lo entiendes.
-// No lo entiendes si funciona.
-//
-// Cualquier intento de refactorizar esto ha resultado en la invocación
-// de problemas dimensionales, loops infinitos y un extraño parpadeo en el
-// monitor que aún no puedo explicar.
-//
-// Si necesitas cambiar esto, primero reza, luego haz una copia de seguridad,
-// y por último... suerte.
-
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -29,6 +13,7 @@ import 'package:lockitem_movil/data/repositories/store_repository_impl.dart';
 import 'package:lockitem_movil/domain/repositories/store_repository.dart';
 import 'package:lockitem_movil/domain/usecases/get_all_stores.dart';
 import 'package:lockitem_movil/presentation/bloc/locate_product_bloc.dart';
+import 'package:lockitem_movil/presentation/bloc/search_bloc.dart';
 import 'package:lockitem_movil/presentation/bloc/store_bloc.dart';
 import 'package:lockitem_movil/data/datasources/remote/inventory_remote_data_source.dart';
 import 'package:lockitem_movil/data/repositories/inventory_repository_impl.dart';
@@ -39,6 +24,7 @@ import 'package:lockitem_movil/presentation/bloc/inventory_bloc.dart';
 import 'data/datasources/remote/iot_device_remote_data_source.dart';
 import 'data/repositories/iot_device_repository_impl.dart';
 import 'domain/repositories/iot_device_repository.dart';
+import 'domain/usecases/get_all_items.dart';
 import 'domain/usecases/get_iot_device_for_item.dart';
 
 
@@ -61,6 +47,9 @@ Future<void> init() async {
   sl.registerFactory(
         () => LocateProductBloc(getIotDeviceForItem: sl()),
   );
+  sl.registerFactory(
+        () => SearchBloc(getAllItemsUseCase: sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUser(sl()));
@@ -68,6 +57,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetAllStores(sl()));
   sl.registerLazySingleton(() => GetItemsByStore(sl()));
   sl.registerLazySingleton(() => GetIotDeviceForItem(sl()));
+  sl.registerLazySingleton(() => GetAllItems(sl()));
 
 
   // Repositories

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lockitem_movil/presentation/screens/account/account_screen.dart';
 import 'package:lockitem_movil/presentation/screens/home/store_list_screen.dart';
-import 'package:lockitem_movil/presentation/screens/saved/save_screen.dart';
 import 'package:lockitem_movil/presentation/screens/search/search_screen.dart';
 import 'package:lockitem_movil/presentation/widgets/bottom_navbar.dart';
 
@@ -18,7 +17,6 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const StoreListScreen(),
     const SearchScreen(),
-    SaveScreen(),
     const AccountScreen(),
   ];
 

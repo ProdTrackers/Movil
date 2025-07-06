@@ -39,4 +39,24 @@ class InventoryRepositoryImpl implements InventoryRepository {
       return Left(NetworkFailure('No hay conexión a internet.'));
     }
   }
+
+  @override
+  Future<Either<Failure, List<ItemEntity>>> getAllItems() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final allRemoteItems = await remoteDataSource.getAllInventoryItems();
+        print('Total items fetched for global search: ${allRemoteItems.length}');
+        return Right(allRemoteItems);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      } on NetworkException catch (e) {
+        return Left(NetworkFailure(e.message ?? 'Error de red al obtener todos los artículos.'));
+      } catch (e) {
+        print('Unexpected error in InventoryRepositoryImpl.getAllItems: $e');
+        return Left(ServerFailure('Un error inesperado ocurrió al obtener todos los artículos: ${e.toString()}'));
+      }
+    } else {
+      return Left(NetworkFailure('No hay conexión a internet.'));
+    }
+  }
 }
